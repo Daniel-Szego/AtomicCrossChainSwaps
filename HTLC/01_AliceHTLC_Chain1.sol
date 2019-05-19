@@ -2,30 +2,35 @@
 contract AliceHTLC_Chain1 {
 
     // from address
-    address public fromAlice;
+    address payable public fromAlice;
     // to address
-    address public toBob;
+    address payable public toBob;
     // timeout
-    unit256 public timeOut;
+    uint256 public timeOut;
     // hashlock
-    bytes32 hashLock;    
+    bytes32 public hashLock;    
 
     // contructor
-    function AliceHTLC_Chain1(address _toBob, byte32 _hashLock, uint256 _timeOut){
+    constructor(address payable _toBob, bytes32 _hashLock, uint256 _timeOut) public {
         fromAlice = msg.sender;
         toBob = _toBob;
         hashLock = _hashLock;
-        timeOut = now + _timeOut minutes;            
+        timeOut = now + (_timeOut * (1 minutes));            
     }    
         
     // allow payments
-    function () public payable {}
+    function () payable external {}
+    
+    // getting contract balance
+    function getBalance() public view returns (uint256){
+        return address(this).balance;
+    } 
     
     // executing the transaction -> Bob gets the payment
     // if valid secretHash presented
     // if timeout still not reached
-    function claim(string _secretHash) public {
-       require(digest == sha256(_secretHash));
+    function claim(string memory _secretHash) public {
+       require(hashLock == sha256(abi.encodePacked(_secretHash)));
        require(now <= timeOut);
        toBob.transfer(address(this).balance);        
     }
@@ -33,8 +38,7 @@ contract AliceHTLC_Chain1 {
     // reverting the transaction -> Alice gets the payment back
     // only if timeout still already reached    
     function expire() public {
-     require(now > timeOut);
+      require(now > timeOut);
      fromAlice.transfer(address(this).balance);
     }
 }
-

@@ -2,30 +2,35 @@
 contract BobHTLC_Chain2 {
 
     // from address
-    address public fromBob;
+    address payable public fromBob;
     // to address
-    address public toAlice;
+    address payable public toAlice;
     // timeout
-    unit256 public timeOut;
+    uint256 public timeOut;
     // hashlock
-    bytes32 hashLock;    
+    bytes32 public hashLock;    
 
     // contructor
-    function BobHTLC_Chain2(address _toAlice, byte32 _hashLock, uint256 _timeOut){
+    constructor (address payable _toAlice, bytes32 _hashLock, uint256 _timeOut) public {
         fromBob = msg.sender;
         toAlice = _toAlice;
         hashLock = _hashLock;
-        timeOut = now + _timeOut minutes;            
+        timeOut = now + _timeOut * (1 minutes);            
     }    
         
     // allow payments
-    function () public payable {}
+    function () payable external {}
+    
+    // getting contract balance
+    function getBalance() public view returns (uint256){
+        return address(this).balance;
+    } 
     
     // executing the transaction -> Alice gets the payment
     // if valid secretHash presented
     // if timeout still not reached
-    function claim(string _secretHash) public {
-       require(digest == sha256(_secretHash));
+    function claim(string memory _secretHash) public {
+       require(hashLock == sha256(abi.encodePacked(_secretHash)));
        require(now <= timeOut);
        toAlice.transfer(address(this).balance);        
     }
@@ -37,4 +42,3 @@ contract BobHTLC_Chain2 {
      fromBob.transfer(address(this).balance);
     }
 }
-

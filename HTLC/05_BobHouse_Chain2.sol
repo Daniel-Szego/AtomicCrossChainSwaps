@@ -6,14 +6,14 @@ contract BobHouse_Chain2 {
     // to address
     address public addressAlice;
     // timeout
-    unit256 public timeOut;
+    uint256 public timeOut;
     // hashlock
-    bytes32 hashLock;    
+    bytes32 public hashLock;    
     // houseowner
     address public addressHouseOwner;
 
     // do I own the house
-    function DoIOwnTheHouse() view returns (bool) {
+    function DoIOwnTheHouse() view public returns (bool) {
         if(msg.sender == addressHouseOwner){
             return true;        
         }
@@ -21,18 +21,18 @@ contract BobHouse_Chain2 {
     }    
     
     // contructor
-    function BobHouse_Chain2(address _toAlice, byte32 _hashLock, uint256 _timeOut){
+    constructor (address _toAlice, bytes32 _hashLock, uint256 _timeOut) public {
         addressBob = msg.sender;
         addressAlice = _toAlice;
         hashLock = _hashLock;
-        timeOut = now + _timeOut minutes;
+        timeOut = now + (_timeOut * (1 minutes));
         addressHouseOwner = addressBob;
     }    
         
     // initializing house transfer
     // hause will be transferred to a temporal address which is the address of the contract
     // it is implemented as an external contract, because at the constructor call time the address of the contract is still not knonw 
-    function InitHouseTransfer(){
+    function InitHouseTransfer() public {
         require(msg.sender == addressBob);
         require(addressHouseOwner == addressBob);
         addressHouseOwner = address(this);    
@@ -42,7 +42,7 @@ contract BobHouse_Chain2 {
     // if valid secretHash presented
     // if timeout still not reached
     function claim(string _secretHash) public {
-       require(digest == sha256(_secretHash));
+       require(hashLock == sha256(abi.encodePacked(_secretHash)));
        require(now <= timeOut);
        addressHouseOwner = addressAlice;    
     }
@@ -54,4 +54,3 @@ contract BobHouse_Chain2 {
      addressHouseOwner = addressBob;
     }
 }
-
