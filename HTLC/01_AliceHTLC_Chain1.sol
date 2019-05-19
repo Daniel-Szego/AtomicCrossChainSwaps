@@ -30,7 +30,7 @@ contract AliceHTLC_Chain1 {
        toBob.transfer(address(this).balance);        
     }
 
-    // reverting the transaction -> Alice gets the payment
+    // reverting the transaction -> Alice gets the payment back
     // only if timeout still already reached    
     function expire() public {
      require(now > timeOut);

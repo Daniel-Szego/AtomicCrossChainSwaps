@@ -21,7 +21,7 @@ contract BobHTLC_Chain2 {
     // allow payments
     function () public payable {}
     
-    // executing the transaction -> Bob gets the payment
+    // executing the transaction -> Alice gets the payment
     // if valid secretHash presented
     // if timeout still not reached
     function claim(string _secretHash) public {
@@ -30,7 +30,7 @@ contract BobHTLC_Chain2 {
        toAlice.transfer(address(this).balance);        
     }
 
-    // reverting the transaction -> Alice gets the payment
+    // reverting the transaction -> Bob gets the payment back
     // only if timeout still already reached    
     function expire() public {
      require(now > timeOut);
